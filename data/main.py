@@ -10,7 +10,7 @@ from model import denoiser
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--checkpoint_dir', dest='ckpt_dir', default='./checkpoint', help='models are saved here')
-parser.add_argument('--epoch', dest='epoch', type=int, default=10, help='# of epoch')
+parser.add_argument('--epoch', dest='epoch', type=int, default=50, help='# of epoch')
 parser.add_argument('--lr', dest='lr', type=float, default=0.001, help='initial learning rate for adam')
 parser.add_argument('--batch_size', dest='batch_size', type=int, default=128, help='# images in batch')
 parser.add_argument('--use_gpu', dest='use_gpu', type=int, default=1, help='gpu flag, 1 for GPU and 0 for CPU')
