@@ -31,13 +31,12 @@ def denoiser_train(denoiser, lr):
     #
     # Note: use 1e5 for testing the performance
     #
-    noisy_data = np.load('./patches/osa_img_noisy_pats_1e+05_quicktest.npy')
-    clean_data = np.load('./patches/osa_img_clean_pats_1e+05_quicktest.npy')
-    print noisy_data.shape , clean_data.shape
+    ##noisy_data = np.load('./patches/osa_img_noisy_pats_1e+05_quicktest.npy')
+    ##clean_data = np.load('./patches/osa_img_clean_pats_1e+05_quicktest.npy')
+    ##print noisy_data.shape , clean_data.shape
 
-    # shuffle rows
-    #np.random.shuffle(self.data)
-
+    noisy_data = np.load('./patches/osa_img_noisy_pats_1e+05.npy')
+    clean_data = np.load('./patches/osa_img_clean_pats_1e+05.npy')
 
     #
     # evaluation data
