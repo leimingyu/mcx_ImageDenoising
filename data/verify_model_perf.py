@@ -25,16 +25,15 @@ args = parser.parse_args()
 
 
 def denoiser_test(denoiser):
-    ##test_files = glob('./data/test/{}/*.png'.format(args.test_set))
-    ##denoiser.test(test_files, ckpt_dir=args.ckpt_dir, save_dir=args.test_dir)
 
-    #noisy_data = np.load('./patches/osa_img_noisy_pats_1e+05_quicktest.npy')
-    #clean_data = np.load('./patches/osa_img_clean_pats_1e+05_quicktest.npy')
-    #print noisy_data.shape , clean_data.shape
+    #noisy_data = './osa_data/1e+05/1/osa_phn1e+05_test1_img1.mat'
+    #clean_data = './osa_data/1e+09/osa_1e9_img1.mat'
 
+    #noisy_data = './osa_data/1e+05/1/osa_phn1e+05_test1_img50.mat'
+    #clean_data = './osa_data/1e+09/osa_1e9_img50.mat'
 
-    noisy_data = './osa_data/1e+05/1/osa_phn1e+05_test1_img1.mat'
-    clean_data = './osa_data/1e+09/osa_1e9_img1.mat'
+    noisy_data = './osa_data/1e+08/1/osa_phn1e+08_test1_img50.mat'
+    clean_data = './osa_data/1e+09/osa_1e9_img50.mat'
 
     noisymat = spio.loadmat(noisy_data, squeeze_me=True) # the output is a dict
     cleanmat = spio.loadmat(clean_data, squeeze_me=True) # the output is a dict
@@ -43,12 +42,21 @@ def denoiser_test(denoiser):
     cleanData = cleanmat['currentImage'] 
 
     (im_h, im_w) = noisyData.shape
-    print noisyData.shape
 
-                noisyData = np.reshape(noisyData, (im_h, im_w, 1))  # extend one dimension
-                cleanData = np.reshape(cleanData, (im_h, im_w, 1))  # extend one dimension
-    #test_image
-    #denoiser.test(test_files, ckpt_dir=args.ckpt_dir, save_dir=args.test_dir)
+    noisyData = np.reshape(noisyData, (im_h, im_w, 1))  # extend one dimension
+    cleanData = np.reshape(cleanData, (im_h, im_w, 1))  # extend one dimension
+
+    # normalize data
+    maxV = 19029108.0 
+    noisyData_norm = noisyData / maxV
+
+    input_noisy = np.zeros((1, im_h, im_w, 1), dtype=np.float32) # 4D matrix
+
+    # update
+    input_noisy[0, :, :, :] = noisyData_norm
+
+    
+    denoiser.test(input_noisy, cleanData, maxV, ckpt_dir=args.ckpt_dir)
 
 
 

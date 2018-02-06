@@ -35,8 +35,28 @@ def denoiser_train(denoiser, lr):
     ##clean_data = np.load('./patches/osa_img_clean_pats_1e+05_quicktest.npy')
     ##print noisy_data.shape , clean_data.shape
 
-    noisy_data = np.load('./patches/osa_img_noisy_pats_1e+05.npy')
-    clean_data = np.load('./patches/osa_img_clean_pats_1e+05.npy')
+    #noisy_data = np.load('./patches/osa_img_noisy_pats_1e+05.npy')
+    #clean_data = np.load('./patches/osa_img_clean_pats_1e+05.npy')
+
+    noisy_data = np.load('./patches/osa_img_noisy_pats_1e+08.npy')
+    clean_data = np.load('./patches/osa_img_clean_pats_1e+08.npy')
+
+    print noisy_data.shape , clean_data.shape
+
+    print noisy_data.max(), clean_data.max()
+    print noisy_data.min(), clean_data.min()
+
+    maxV = noisy_data.max()
+    if maxV < clean_data.max():
+        maxV = clean_data.max() 
+
+    print("maxV = {}".format(maxV))
+
+    noisy_data_norm = noisy_data / maxV
+    clean_data_norm = clean_data / maxV
+    print noisy_data_norm.max(), clean_data_norm.max()
+    print noisy_data_norm.min(), clean_data_norm.min()
+
 
     #
     # evaluation data
@@ -46,8 +66,8 @@ def denoiser_train(denoiser, lr):
     #
     # Train 
     #
-    denoiser.train(noisy_data, clean_data, 
-            batch_size=args.batch_size, ckpt_dir=args.ckpt_dir, epoch=args.epoch, lr=lr)
+    ##denoiser.train(noisy_data, clean_data, batch_size=args.batch_size, ckpt_dir=args.ckpt_dir, epoch=args.epoch, lr=lr)
+    denoiser.train(noisy_data_norm, clean_data_norm, batch_size=args.batch_size, ckpt_dir=args.ckpt_dir, epoch=args.epoch, lr=lr)
 
 
 
