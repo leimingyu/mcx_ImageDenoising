@@ -32,8 +32,20 @@ def denoiser_test(denoiser):
     #noisy_data = './osa_data/1e+05/1/osa_phn1e+05_test1_img50.mat'
     #clean_data = './osa_data/1e+09/osa_1e9_img50.mat'
 
+
+    #------------
+    # 1e8
+    #------------
+    noisy_data = np.load('./patches/osa_img_noisy_pats_1e+08.npy')
+    clean_data = np.load('./patches/osa_img_clean_pats_1e+08.npy')
+    maxV = noisy_data.max()
+    if maxV < clean_data.max():
+        maxV = clean_data.max() 
+    print("maxV = {}".format(maxV))
+
     noisy_data = './osa_data/1e+08/1/osa_phn1e+08_test1_img50.mat'
     clean_data = './osa_data/1e+09/osa_1e9_img50.mat'
+
 
     noisymat = spio.loadmat(noisy_data, squeeze_me=True) # the output is a dict
     cleanmat = spio.loadmat(clean_data, squeeze_me=True) # the output is a dict
@@ -47,7 +59,6 @@ def denoiser_test(denoiser):
     cleanData = np.reshape(cleanData, (im_h, im_w, 1))  # extend one dimension
 
     # normalize data
-    maxV = 19029108.0 
     noisyData_norm = noisyData / maxV
 
     input_noisy = np.zeros((1, im_h, im_w, 1), dtype=np.float32) # 4D matrix
