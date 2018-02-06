@@ -375,8 +375,8 @@ if __name__ == '__main__':
 
     #photon_vol_list = ['1e+05', '1e+06', '1e+07', '1e+08']
 
-    print '\nGenerating osa data [1e+05]'
-    gen_osa_data('1e+05')
+    #print '\nGenerating osa data [1e+05]'
+    #gen_osa_data('1e+05')
 
     ##print '\nGenerating osa data [1e+06]'
     ##gen_osa_data('1e+06')
@@ -384,8 +384,8 @@ if __name__ == '__main__':
     ##print '\nGenerating osa data [1e+07]'
     ##gen_osa_data('1e+07')
 
-    ##print '\nGenerating osa data [1e+08]'
-    ##gen_osa_data('1e+08')
+    print '\nGenerating osa data [1e+08]'
+    gen_osa_data('1e+08')
 
     #print '\nGenerating osa data [1e+05] for quicktest'
     #gen_osa_data_quicktest('1e+05')
