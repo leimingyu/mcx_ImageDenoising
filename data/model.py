@@ -172,28 +172,22 @@ class denoiser(object):
                 iter_num += 1
                 #writer.add_summary(summary, iter_num)
 
-        ##    if np.mod(epoch + 1, eval_every_epoch) == 0:
-        ##        self.evaluate(iter_num, eval_data, summary_merged=summary_psnr,
-        ##                      summary_writer=writer)  # eval_data value range is 0-255
-        ##        self.save(iter_num, ckpt_dir)
+            if np.mod(epoch + 1, eval_every_epoch) == 0:
+                #self.evaluate(iter_num, eval_data, summary_merged=summary_psnr, summary_writer=writer)  # eval_data value range is 0-255
+                self.save(iter_num, ckpt_dir)
 
-        ##print("[*] Finish training.")
-
+        print("[*] Finish training.")
 
 
-
-
-
-
-    ##def save(self, iter_num, ckpt_dir, model_name='DnCNN-tensorflow'):
-    ##    saver = tf.train.Saver()
-    ##    checkpoint_dir = ckpt_dir
-    ##    if not os.path.exists(checkpoint_dir):
-    ##        os.makedirs(checkpoint_dir)
-    ##    print("[*] Saving model...")
-    ##    saver.save(self.sess,
-    ##               os.path.join(checkpoint_dir, model_name),
-    ##               global_step=iter_num)
+    def save(self, iter_num, ckpt_dir, model_name='DnCNN-tensorflow'):
+        saver = tf.train.Saver()
+        checkpoint_dir = ckpt_dir
+        if not os.path.exists(checkpoint_dir):
+            os.makedirs(checkpoint_dir)
+        print("[*] Saving model...")
+        saver.save(self.sess,
+                   os.path.join(checkpoint_dir, model_name),
+                   global_step=iter_num)
 
 
 
@@ -205,20 +199,41 @@ class denoiser(object):
 
 
 
-    ##def test(self, test_files, ckpt_dir, save_dir):
-    ##    """Test DnCNN"""
-    ##    # init variables
-    ##    tf.initialize_all_variables().run()
-    ##    assert len(test_files) != 0, 'No testing data!'
-    ##    load_model_status, global_step = self.load(ckpt_dir)
-    ##    assert load_model_status == True, '[!] Load weights FAILED...'
-    ##    print(" [*] Load weights SUCCESS...")
-    ##    psnr_sum = 0
-    ##    print("[*] " + 'noise level: ' + str(self.sigma) + " start testing...")
+    def test(self, noisydata_norm, cleandata, maxV, ckpt_dir):
+        """Test DnCNN"""
+        # init variables
+        tf.initialize_all_variables().run()
+        assert len(noisydata_norm) != 0, 'No testing data!'
+
+        load_model_status, global_step = self.load(ckpt_dir)
+        assert load_model_status == True, '[!] Load weights FAILED...'
+        print("[*] Load weights SUCCESS...")
+
+        ## note: input is 4D
+        output_clean_image = self.sess.run([self.Y],
+                feed_dict={self.X: noisydata_norm, self.is_training: False})
+
+        #print type(output_clean_image)
+        output_clean_image = np.asarray(output_clean_image)
+        #print type(output_clean_image)
+        print output_clean_image.shape
+        #print output_clean_image.max()
+        #print output_clean_image.min()
+
+        output_clean = output_clean_image[0,0,:,:,0]
+        print output_clean.shape
+
+        # save output_clean to mat file
+        import scipy.io as sio
+        sio.savemat('test_model_output.mat', {'output_clean':output_clean})
+
+
+        # save the output_clean to a file and compare the results with ground truth (leiming)
+
+
+
     ##    for idx in xrange(len(test_files)):
     ##        clean_image = load_images(test_files[idx]).astype(np.float32) / 255.0
-    ##        output_clean_image, noisy_image = self.sess.run([self.Y, self.X],
-    ##                                                        feed_dict={self.Y_: clean_image, self.is_training: False})
     ##        groundtruth = np.clip(255 * clean_image, 0, 255).astype('uint8')
     ##        noisyimage = np.clip(255 * noisy_image, 0, 255).astype('uint8')
     ##        outputimage = np.clip(255 * output_clean_image, 0, 255).astype('uint8')
