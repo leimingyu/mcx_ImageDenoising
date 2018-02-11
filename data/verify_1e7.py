@@ -8,7 +8,7 @@ from model import denoiser
 from utils import *
 
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('--checkpoint_dir', dest='ckpt_dir', default='./checkpoint_1e8-1e9', help='models are saved here')
+parser.add_argument('--checkpoint_dir', dest='ckpt_dir', default='./checkpoint_1e7', help='models are saved here')
 parser.add_argument('--batch_size', dest='batch_size', type=int, default=128, help='# images in batch')
 parser.add_argument('--use_gpu', dest='use_gpu', type=int, default=1, help='gpu flag, 1 for GPU and 0 for CPU')
 
@@ -60,8 +60,8 @@ def denoiser_test(denoiser):
     input_noisy1[0, :, :, :]  = noisyData1
     input_noisy50[0, :, :, :] = noisyData50
 
-    denoiser.test(input_noisy1,    ckpt_dir=args.ckpt_dir, outFile='1e8model-1e8-log_test1_img1.mat')
-    denoiser.test(input_noisy50,   ckpt_dir=args.ckpt_dir, outFile='1e8model-1e8-log_test1_img50.mat')
+    denoiser.test(input_noisy1,    ckpt_dir=args.ckpt_dir, outFile='1e7model-1e8-log_test1_img1.mat')
+    denoiser.test(input_noisy50,   ckpt_dir=args.ckpt_dir, outFile='1e7model-1e8-log_test1_img50.mat')
 
 
     #------------
@@ -94,8 +94,8 @@ def denoiser_test(denoiser):
     input_noisy1[0, :, :, :]  = noisyData1
     input_noisy50[0, :, :, :] = noisyData50
 
-    denoiser.test(input_noisy1,    ckpt_dir=args.ckpt_dir, outFile='1e8model-1e7-log_test1_img1.mat')
-    denoiser.test(input_noisy50,   ckpt_dir=args.ckpt_dir, outFile='1e8model-1e7-log_test1_img50.mat')
+    denoiser.test(input_noisy1,    ckpt_dir=args.ckpt_dir, outFile='1e7model-1e7-log_test1_img1.mat')
+    denoiser.test(input_noisy50,   ckpt_dir=args.ckpt_dir, outFile='1e7model-1e7-log_test1_img50.mat')
 
 
     #------------
@@ -128,8 +128,8 @@ def denoiser_test(denoiser):
     input_noisy1[0, :, :, :]  = noisyData1
     input_noisy50[0, :, :, :] = noisyData50
 
-    denoiser.test(input_noisy1,    ckpt_dir=args.ckpt_dir, outFile='1e8model-1e6-log_test1_img1.mat')
-    denoiser.test(input_noisy50,   ckpt_dir=args.ckpt_dir, outFile='1e8model-1e6-log_test1_img50.mat')
+    denoiser.test(input_noisy1,    ckpt_dir=args.ckpt_dir, outFile='1e7model-1e6-log_test1_img1.mat')
+    denoiser.test(input_noisy50,   ckpt_dir=args.ckpt_dir, outFile='1e7model-1e6-log_test1_img50.mat')
 
     #------------
     # 1e5 
@@ -161,8 +161,8 @@ def denoiser_test(denoiser):
     input_noisy1[0, :, :, :]  = noisyData1
     input_noisy50[0, :, :, :] = noisyData50
 
-    denoiser.test(input_noisy1,    ckpt_dir=args.ckpt_dir, outFile='1e8model-1e5-log_test1_img1.mat')
-    denoiser.test(input_noisy50,   ckpt_dir=args.ckpt_dir, outFile='1e8model-1e5-log_test1_img50.mat')
+    denoiser.test(input_noisy1,    ckpt_dir=args.ckpt_dir, outFile='1e7model-1e5-log_test1_img1.mat')
+    denoiser.test(input_noisy50,   ckpt_dir=args.ckpt_dir, outFile='1e7model-1e5-log_test1_img50.mat')
 
 def main(_):
     if args.use_gpu:
