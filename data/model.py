@@ -192,18 +192,13 @@ class denoiser(object):
 
 
 
-
-
-
-
-
-
-
-    def test(self, noisydata_norm, cleandata, maxV, ckpt_dir):
+    def test(self, noisydata, ckpt_dir, outFile='test_model_output.mat'):
         """Test DnCNN"""
+        import scipy.io as sio
+
         # init variables
         tf.initialize_all_variables().run()
-        assert len(noisydata_norm) != 0, 'No testing data!'
+        assert len(noisydata) != 0, 'No testing data!'
 
         load_model_status, global_step = self.load(ckpt_dir)
         assert load_model_status == True, '[!] Load weights FAILED...'
@@ -211,37 +206,13 @@ class denoiser(object):
 
         ## note: input is 4D
         output_clean_image = self.sess.run([self.Y],
-                feed_dict={self.X: noisydata_norm, self.is_training: False})
+                feed_dict={self.X: noisydata, self.is_training: False})
 
-        #print type(output_clean_image)
         output_clean_image = np.asarray(output_clean_image)
-        #print type(output_clean_image)
-        print output_clean_image.shape
-        #print output_clean_image.max()
-        #print output_clean_image.min()
+        #print output_clean_image.shape
 
         output_clean = output_clean_image[0,0,:,:,0]
-        print output_clean.shape
+        #print output_clean.shape
 
         # save output_clean to mat file
-        import scipy.io as sio
-        sio.savemat('test_model_output.mat', {'output_clean':output_clean})
-
-
-        # save the output_clean to a file and compare the results with ground truth (leiming)
-
-
-
-    ##    for idx in xrange(len(test_files)):
-    ##        clean_image = load_images(test_files[idx]).astype(np.float32) / 255.0
-    ##        groundtruth = np.clip(255 * clean_image, 0, 255).astype('uint8')
-    ##        noisyimage = np.clip(255 * noisy_image, 0, 255).astype('uint8')
-    ##        outputimage = np.clip(255 * output_clean_image, 0, 255).astype('uint8')
-    ##        # calculate PSNR
-    ##        psnr = cal_psnr(groundtruth, outputimage)
-    ##        print("img%d PSNR: %.2f" % (idx, psnr))
-    ##        psnr_sum += psnr
-    ##        save_images(os.path.join(save_dir, 'noisy%d.png' % idx), noisyimage)
-    ##        save_images(os.path.join(save_dir, 'denoised%d.png' % idx), outputimage)
-    ##    avg_psnr = psnr_sum / len(test_files)
-    ##    print("--- Average PSNR %.2f ---" % avg_psnr)
+        sio.savemat(outFile, {'output_clean':output_clean})
