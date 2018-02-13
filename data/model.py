@@ -192,7 +192,7 @@ class denoiser(object):
 
 
 
-    def test(self, noisydata, ckpt_dir, outFile='test_model_output.mat'):
+    def test(self, noisydata, ckpt_dir, outFile=''):
         """Test DnCNN"""
         import scipy.io as sio
 
@@ -214,5 +214,8 @@ class denoiser(object):
         output_clean = output_clean_image[0,0,:,:,0]
         #print output_clean.shape
 
-        # save output_clean to mat file
-        sio.savemat(outFile, {'output_clean':output_clean})
+        if len(outFile) == 0:
+            return output_clean
+        else:
+            # save output_clean to mat file
+            sio.savemat(outFile, {'output_clean':output_clean})
