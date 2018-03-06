@@ -1,16 +1,17 @@
 import time
-from utils import *
 import tensorflow as tf
+import numpy as np
+import os,sys
 
 
 def dncnn(input, is_training=True, output_channels=1):
     with tf.variable_scope('block1'):
         output = tf.layers.conv2d(
-            input, 128, 3, padding='same', activation=tf.nn.relu)
+            input, 64, 3, padding='same', activation=tf.nn.relu)
     for layers in xrange(2, 16 + 1):
         with tf.variable_scope('block%d' % layers):
             output = tf.layers.conv2d(
-                output, 128, 3, padding='same', name='conv%d' %
+                output, 64, 3, padding='same', name='conv%d' %
                 layers, use_bias=False)
             output = tf.nn.relu(
                 tf.layers.batch_normalization(

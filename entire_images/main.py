@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 import argparse
-import os
+import os,sys
 import numpy as np
-from utils import *
 
 #from glob import glob
 
@@ -19,7 +18,7 @@ parser.add_argument(
     '--epoch',
     dest='epoch',
     type=int,
-    default=50,
+    default=200,
     help='# of epoch')
 parser.add_argument(
     '--lr',
