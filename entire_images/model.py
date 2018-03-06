@@ -2,6 +2,7 @@ import time
 import tensorflow as tf
 import numpy as np
 import os,sys
+import scipy.io as sio                                                  
 
 
 def dncnn(input, is_training=True, output_channels=1):
@@ -141,6 +142,34 @@ class denoiser(object):
                 self.save(iter_num, ckpt_dir)
 
         print("[*] Finish training.")
+
+
+    def test(self, noisydata, ckpt_dir, outFile=''):                            
+        """Test DnCNN"""                                                        
+        # init variables                                                        
+        tf.initialize_all_variables().run()                                     
+        assert len(noisydata) != 0, 'No testing data!'                          
+                                                                                
+        load_model_status, global_step = self.load(ckpt_dir)                    
+        assert load_model_status == True, '[!] Load weights FAILED...'          
+        print("[*] Load weights SUCCESS...")                                    
+                                                                                
+        ## note: input is 4D                                                    
+        output_clean_image = self.sess.run([self.Y],                            
+                feed_dict={self.X: noisydata, self.is_training: False})         
+                                                                                
+        output_clean_image = np.asarray(output_clean_image)                     
+        #print output_clean_image.shape                                         
+                                                                                
+        output_clean = output_clean_image[0,0,:,:,0]                            
+        #print output_clean.shape                                               
+                                                                                
+        if len(outFile) == 0:                                                   
+            return output_clean                                                 
+        else:                                                                   
+            # save output_clean to mat file                                     
+            sio.savemat(outFile, {'output_clean':output_clean})  
+
 
     def save(self, iter_num, ckpt_dir, model_name='DnCNN-tensorflow'):
         saver = tf.train.Saver()
