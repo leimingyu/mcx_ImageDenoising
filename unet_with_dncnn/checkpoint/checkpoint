@@ -1,0 +1,2 @@
+model_checkpoint_path: "unet-tensorflow-31400"
+all_model_checkpoint_paths: "unet-tensorflow-31400"
