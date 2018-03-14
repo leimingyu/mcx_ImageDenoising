@@ -13,11 +13,11 @@ def unet(input, is_training=True, output_channels=1):
     # dncnn : learning noise
     with tf.variable_scope('block1'):
         output = tf.layers.conv2d(input, 64, 3, padding='same', activation=tf.nn.relu)
-    for layers in xrange(2, 17):
+    for layers in xrange(2, 10):
         with tf.variable_scope('block%d' % layers):
             output = tf.layers.conv2d(output, 64, 3, padding='same', name='conv%d' % layers, use_bias=False)
             output = tf.nn.relu(tf.layers.batch_normalization(output, training=is_training))
-    with tf.variable_scope('block17'):
+    with tf.variable_scope('block10'):
         output = tf.layers.conv2d(output, output_channels, 3, padding='same')
 
     ##with tf.variable_scope('deep1'):
