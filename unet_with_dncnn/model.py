@@ -10,17 +10,46 @@ import scipy.io as sio
 # [1] https://github.com/timctho/unet-tensorflow/blob/master/model/u_net_tf_v2.py
 
 def unet(input, is_training=True, output_channels=1):
+    # dncnn : learning noise
+    with tf.variable_scope('block1'):
+        output = tf.layers.conv2d(input, 64, 3, padding='same', activation=tf.nn.relu)
+    for layers in xrange(2, 17):
+        with tf.variable_scope('block%d' % layers):
+            output = tf.layers.conv2d(output, 64, 3, padding='same', name='conv%d' % layers, use_bias=False)
+            output = tf.nn.relu(tf.layers.batch_normalization(output, training=is_training))
+    with tf.variable_scope('block17'):
+        output = tf.layers.conv2d(output, output_channels, 3, padding='same')
+
+    ##with tf.variable_scope('deep1'):
+    ##    deep1 = input - output
+
+    ##with tf.variable_scope('block18'):
+    ##    output = tf.layers.conv2d(deep1, 128, 3, padding='same', activation=tf.nn.relu)
+
+    ##for layers in xrange(19, 34):
+    ##    with tf.variable_scope('block%d' % layers):
+    ##        output = tf.layers.conv2d(output, 128, 3, padding='same', name='conv%d' % layers, use_bias=False)
+    ##        output = tf.nn.relu(tf.layers.batch_normalization(output, training=is_training))
+    ##with tf.variable_scope('block34'):
+    ##    output = tf.layers.conv2d(output, output_channels, 3, padding='same')
 
 
 
+    #
+    # assume, dncnn learned the noise well, but there are still residual noise left
+    #
 
 
+    with tf.variable_scope('dncnn-output'):
+        input_unet = input - output 
 
-
+    #
+    # we will use unet to learn the left noise
+    #
 
     with tf.variable_scope('down0'):
         # conv + conv + max_pool
-        down0a = tc.layers.conv2d(input,  64,  (3,3), padding='same', normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        down0a = tc.layers.conv2d(input_unet,  64,  (3,3), padding='same', normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
         down0b = tc.layers.conv2d(down0a, 64,  (3,3), padding='same', normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
         down0c = tc.layers.max_pool2d(down0b,  (2,2), padding='same')
 
@@ -47,10 +76,14 @@ def unet(input, is_training=True, output_channels=1):
         up0d = tc.layers.conv2d(up0c, 64, (3,3), normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
         up0e = tc.layers.conv2d(up0d, 64, (3,3), normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
 
-    with tf.variable_scope('output'):
-        output = tc.layers.conv2d(up0e, 1, [1, 1], activation_fn=None)
+    with tf.variable_scope('unet-output'):
+        output_unet = tc.layers.conv2d(up0e, 1, [1, 1], activation_fn=None)
 
-    return output 
+    #
+    # assume unet has learned the left noise
+    #
+
+    return  input_unet - output_unet
 
 
 class denoiser(object):
