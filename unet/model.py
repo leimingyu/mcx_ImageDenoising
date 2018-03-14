@@ -1,168 +1,46 @@
 import time
-from utils import *
+import os,sys
+
 import tensorflow as tf
 import tensorflow.contrib as tc
+import numpy as np
+import scipy.io as sio                                                  
+
+# refer: 
+# [1] https://github.com/timctho/unet-tensorflow/blob/master/model/u_net_tf_v2.py
 
 def unet(input, is_training=True, output_channels=1):
-    with tf.variable_scope('down1'):
+    with tf.variable_scope('down0'):
         # conv + conv + max_pool
-        down1x = tc.layers.conv2d(input, num_outputs=64, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
+        down0a = tc.layers.conv2d(input,  64,  (3,3), padding='same', normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        down0b = tc.layers.conv2d(down0a, 64,  (3,3), padding='same', normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        down0c = tc.layers.max_pool2d(down0b,  (2,2), padding='same')
 
-        down1y = tc.layers.conv2d(down1x, num_outputs=64, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        down1z= tc.layers.max_pool2d(down1y, kernel_size=2, padding='SAME')
-
+    with tf.variable_scope('down1'):
+        down1a = tc.layers.conv2d(down0c,  128, (3,3), padding='same', normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        down1b = tc.layers.conv2d(down1a,  128, (3,3), padding='same', normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        down1c = tc.layers.max_pool2d(down1b,   (2,2), padding='same')
 
     with tf.variable_scope('down2'):
-        # conv + conv + max_pool
-        down2x = tc.layers.conv2d(down1z, num_outputs=128, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        down2y = tc.layers.conv2d(down2x, num_outputs=128, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        down2z = tc.layers.max_pool2d(down2y, kernel_size=2, padding='SAME')
-
-
-    with tf.variable_scope('down3'):
-        # conv + conv + max_pool
-        down3x = tc.layers.conv2d(down2z, num_outputs=256, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        down3y = tc.layers.conv2d(down3x, num_outputs=256, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        down3z = tc.layers.max_pool2d(down3y, kernel_size=2, padding='SAME')
-
-
-    with tf.variable_scope('down4'):
-        # conv + conv + max_pool
-        down4x = tc.layers.conv2d(down3z, num_outputs=512, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        down4y = tc.layers.conv2d(down4x, num_outputs=512, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        down4z = tc.layers.max_pool2d(down4y, kernel_size=2, padding='SAME')
-
-
-    with tf.variable_scope('down5'):
-        # conv + conv 
-        down5x = tc.layers.conv2d(down4z, num_outputs=1024, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        down5y = tc.layers.conv2d(down5x, num_outputs=1024, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-
-    with tf.variable_scope('up4'):
-        shape = down5y.get_shape().as_list()
-        up4x = tf.image.resize_bilinear(down5y, size=[2*shape[1], 2*shape[2]], align_corners=True)
-        up4y = tf.concat([up4x, down4y], axis=3)
-
-        up4z = tc.layers.conv2d(up4y, num_outputs=512, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        up4m = tc.layers.conv2d(up4z, num_outputs=512, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        up4n = tc.layers.conv2d(up4m, num_outputs=512, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-
-    with tf.variable_scope('up3'):
-        shape = up4n.get_shape().as_list()
-        up3x = tf.image.resize_bilinear(up4n, size=[2*shape[1], 2*shape[2]], align_corners=True)
-        up3y = tf.concat([up3x, down3y], axis=3)
-
-        up3z = tc.layers.conv2d(up3y, num_outputs=256, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        up3m = tc.layers.conv2d(up3z, num_outputs=256, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        up3n = tc.layers.conv2d(up3m, num_outputs=256, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-
-
-    with tf.variable_scope('up2'):
-        shape = up3n.get_shape().as_list()
-        up2x = tf.image.resize_bilinear(up3n, size=[2*shape[1], 2*shape[2]], align_corners=True)
-        up2y = tf.concat([up2x, down2y], axis=3)
-
-        up2z = tc.layers.conv2d(up2y, num_outputs=128, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        up2m = tc.layers.conv2d(up2z, num_outputs=128, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        up2n = tc.layers.conv2d(up2m, num_outputs=128, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
+        down2a = tc.layers.conv2d(down1c,  256, (3,3), padding='same', normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        down2b = tc.layers.conv2d(down2a,  256, (3,3), padding='same', normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
 
     with tf.variable_scope('up1'):
-        shape = up2n.get_shape().as_list()
-        up1x = tf.image.resize_bilinear(up2n, size=[2*shape[1], 2*shape[2]], align_corners=True)
-        up1y = tf.concat([up1x, down1y], axis=3)
+        up1a = tc.layers.conv2d_transpose(down2b, 128, (2,2), 2, normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        up1b = tf.concat([up1a, down1b], axis=3)
+        up1c = tc.layers.conv2d(up1b, 128, (3,3), normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        up1d = tc.layers.conv2d(up1c, 128, (3,3), normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        up1e = tc.layers.conv2d(up1d, 128, (3,3), normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
 
-        up1z = tc.layers.conv2d(up1y, num_outputs=64, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        up1m = tc.layers.conv2d(up1z, num_outputs=64, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
-
-        up1n = tc.layers.conv2d(up1m, num_outputs=64, kernel_size=3, padding='SAME', 
-                activation_fn=tf.nn.relu,
-                normalizer_fn=tc.layers.batch_norm,
-                normalizer_params={'is_training': is_training})
+    with tf.variable_scope('up0'):
+        up0a = tc.layers.conv2d_transpose(up1e, 64, (2,2), 2, normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        up0b = tf.concat([up0a, down0b], axis=3)
+        up0c = tc.layers.conv2d(up0b, 64, (3,3), normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        up0d = tc.layers.conv2d(up0c, 64, (3,3), normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
+        up0e = tc.layers.conv2d(up0d, 64, (3,3), normalizer_fn=tc.layers.batch_norm, normalizer_params={'is_training': is_training})
 
     with tf.variable_scope('output'):
-        output = tc.layers.conv2d(up1n, 1, [1, 1], activation_fn=None)
+        output = tc.layers.conv2d(up0e, 1, [1, 1], activation_fn=None)
 
     return input - output
 
