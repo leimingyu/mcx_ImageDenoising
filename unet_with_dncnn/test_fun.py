@@ -59,6 +59,15 @@ def denoiser_test(denoiser):
     print green.shape
     print red.shape
 
+    iw,ih = blue.shape
+    if ih > iw:
+       ih = iw 
+
+    #trunc
+    blue = im[:,:ih,0]
+    green = im[:,:ih,1]
+    red = im[:,:ih,2]
+
     print np.amax(blue)
     print np.amax(green)
     print np.amax(red)
@@ -82,7 +91,21 @@ def denoiser_test(denoiser):
     print np.amin(green_scale)
     print np.amin(red_scale)
 
+    (im_h, im_w) = blue.shape
+    print im_h, im_w
+
+    blue_new = np.zeros((1, im_h, im_w, 1), dtype=np.float32)  # 4D matrix
+    green_new = np.zeros((1, im_h, im_w, 1), dtype=np.float32)  # 4D matrix
+    red_new = np.zeros((1, im_h, im_w, 1), dtype=np.float32)  # 4D matrix
+
+    # update
+    blue_new[0, :, :, 0] = blue_scale 
+    green_new[0, :, :, 0] = green_scale 
+    red_new[0, :, :, 0] = red_scale 
     
+    out_blue, out_green, out_red = denoiser.test_fun(blue_new, green_new, red_new, ckpt_dir=args.ckpt_dir)
+
+
     #-----------
     # feed to the model
     #-----------
